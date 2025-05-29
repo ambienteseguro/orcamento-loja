@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Orçamento - RSC TECHNOLOGY</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #222;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 700px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        label, input, textarea {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        input[type="text"], textarea {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .policies {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+/*----------------------------------------------------------------------------*/
+    .checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Corrigido, agora em comentário válido */
+    margin-bottom: 5px;
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.checkbox-container input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #007BFF;
+}
+
+.checkbox-container label {
+    display: inline; /* Corrige o problema do label ocupar 100% da linha */
+    width: auto; /* Deixa o label só com o tamanho do texto */
+    margin-bottom: 0; /* Remove espaço extra embaixo */
+    cursor: pointer;
+}
+/*----------------------------------------------------------------------------*/
+        .assinatura {
+            margin-top: 20px;
+            font-style: italic;
+            color: #333;
+            display: none;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>RSC TECHNOLOGY</h1>
+<p style="text-align:center; font-weight:bold;">ORÇAMENTO - <span id="dataHoje"></span></p>
+
+<div class="form-container">
+    <form id="form2">
+        <label for="nome">Nome do Cliente:</label>
+        <input type="text" id="nome" name="nome" readonly> 
+
+        <label for="telefone">Whatsapp com DDD:</label>
+        <input type="text" id="telefone" name="telefone" readonly>
+
+        <label for="marca">Marca do Equipamento:</label>
+        <input type="text" id="marca" name="marca" readonly>
+
+        <label for="modelo">Modelo do Equipamento:</label>
+        <input type="text" id="modelo" name="modelo" readonly>
+
+        <label for="problema">Defeito Apresentado:</label>
+        <textarea id="problema" name="problema" rows="3" readonly></textarea>
+
+        <label for="valor">Valor do Orçamento:</label>
+        <input type="text" id="valor" name="valor" readonly>
+
+        <div class="policies">
+            <p><strong>Política de Pagamento:</strong></p>
+            <p>O pagamento deve ser realizado através de PIX na retirada do equipamento.</p>
+            <p><strong>Política de Atendimento Técnico:</strong></p>
+            <p>Cobramos a taxa de visita técnica para cobrir os custos de deslocamento e avaliação. Essa taxa é fixa e se aplica independentemente da decisão do cliente quanto à execução do serviço.</p>
+	    <p><strong>Políticas de Garantia:</strong></p>
+            <p>A assistência técnica não se responsabiliza por arquivos armazenados no dispositivo. O cliente declara ter realizado o backup previamente ou isenta expressamente a assistência de qualquer responsabilidade por eventual perda de dados.</p>
+            <p>Também não nos responsabilizamos por perdas de dados decorrentes de fatores externos ou alheios ao nosso controle, tais como: falhas elétricas, defeitos preexistentes no equipamento, ações de terceiros, falhas na unidade de armazenamento utilizada para backup ou qualquer outro evento imprevisível ocorrido durante ou após a execução do serviço.</p>
+            <p>Peças substituídas, se houver, serão devolvidas mediante solicitação formal no ato da retirada do equipamento. Na ausência de solicitação, as peças serão descartadas conforme nosso procedimento interno.</p>
+            <p>Os serviços prestados possuem garantia de 90 (noventa) dias, conforme o artigo 26, inciso II, do Código de Defesa do Consumidor.</p>
+            <p>A garantia cobre exclusivamente o serviço executado, não se estendendo a danos decorrentes de mau uso, quedas, líquidos, surtos elétricos ou intervenção de terceiros.</p>
+            <p>Serviços de software não possuem garantia, uma vez que não é possível garantir que o usuário não acesse sites ou arquivos potencialmente maliciosos, o que comprometeria o funcionamento do sistema.</p>
+            <p>Serviços de hardware seguem as condições de garantia estabelecidas pelo fabricante.</p>
+        </div>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="concordo" name="concordo">
+            <label for="concordo">Concordo com o orçamento, política de pagamento e políticas de garantia</label>
+        </div>
+
+        <div id="assinaturaTexto" class="assinatura"></div>
+
+        <div class="button-container">
+            <button type="button" id="enviarBtn" disabled>Enviar Resposta</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    function preencherFormulario() {
+        const urlParams = new URLSearchParams(window.location.search);
+        document.getElementById('nome').value = urlParams.get('nome') || '';
+        document.getElementById('telefone').value = urlParams.get('telefone') || '';
+        document.getElementById('marca').value = urlParams.get('marca') || '';
+        document.getElementById('modelo').value = urlParams.get('modelo') || '';
+        document.getElementById('problema').value = urlParams.get('problema') || '';
+        document.getElementById('valor').value = urlParams.get('valor') || '';
+
+        const hoje = new Date().toLocaleDateString();
+        document.getElementById('dataHoje').textContent = hoje;
+    }
+
+    document.getElementById('concordo').addEventListener('change', function() {
+        const button = document.getElementById('enviarBtn');
+        const assinatura = document.getElementById('assinaturaTexto');
+        const telefone = document.getElementById('telefone').value;
+
+        if (this.checked) {
+            button.disabled = false;
+            button.style.opacity = 1;
+            button.style.pointerEvents = 'auto';
+
+            assinatura.style.display = 'block';
+            assinatura.innerText = `Assinado eletronicamente pelo responsável do Whatsapp número: ${telefone}`;
+        } else {
+            button.disabled = true;
+            button.style.opacity = 0.5;
+            button.style.pointerEvents = 'none';
+
+            assinatura.style.display = 'none';
+            assinatura.innerText = '';
+        }
+    });
+
+    async function enviarEmailComPDF(pdfBlob) {
+        const formData = new FormData();
+        formData.append('file', pdfBlob, 'orcamento.pdf');
+        await fetch('https://script.google.com/macros/s/AKfycbz0VZdQUzic-osu1pMVs-gDGn_gNyJNaGXBhvwsq-4WyH3pCfSFgRk5o-DF8SkoboZ8/exec', {
+            method: 'POST',
+            body: formData
+        });
+    }
+
+document.getElementById('enviarBtn').addEventListener('click', async () => {
+const { jsPDF } = window.jspdf;
+const doc = new jsPDF();
+
+const nome = document.getElementById('nome').value;
+const telefone = document.getElementById('telefone').value;
+const marca = document.getElementById('marca').value;
+const modelo = document.getElementById('modelo').value;
+const problema = document.getElementById('problema').value;
+const valor = document.getElementById('valor').value;
+
+const data = new Date().toLocaleDateString();
+
+// Centralização calculada manualmente (largura da página é 210mm no padrão A4)
+doc.setFontSize(16);
+doc.text("RSC TECHNOLOGY", 105, 15, { align: "center" });
+
+doc.setFontSize(12);
+doc.text(`ORÇAMENTO - ${data}`, 105, 25, { align: "center" });
+
+let linha = 35;
+doc.text(`Nome do Cliente: ${nome}`, 10, linha); linha += 5;
+doc.text(`Whatsapp com DDD: ${telefone}`, 10, linha); linha += 5;
+doc.text(`Marca do Equipamento: ${marca}`, 10, linha); linha += 5;
+doc.text(`Modelo do Equipamento: ${modelo}`, 10, linha); linha += 5;
+doc.text(`Defeito Apresentado: ${problema}`, 10, linha); linha += 5;
+doc.text(`Valor do Orçamento: ${valor}`, 10, linha); linha += 5;
+
+doc.text(`______________________________________________________________________`, 10, linha); linha += 10;
+doc.text(`Assinado eletronicamente pelo responsável do Whatsapp número: ${telefone}`, 10, linha); linha += 5;
+doc.text(`______________________________________________________________________`, 10, linha); linha += 10;
+
+doc.setFont(undefined, 'bold');
+doc.text("Política de Pagamento:", 10, linha); linha += 7;
+doc.setFont(undefined, 'normal');
+doc.text("O pagamento deve ser realizado através de PIX na retirada do equipamento.", 10, linha); linha += 10;
+
+doc.setFont(undefined, 'bold');
+doc.text("Política de Atendimento Técnico:", 10, linha); linha += 7;
+doc.setFont(undefined, 'normal');
+doc.text("Cobramos a taxa de visita técnica para cobrir os custos de deslocamento e avaliação. Essa taxa é fixa", 10, linha);linha += 5; 
+doc.text(" e se aplica independentemente da decisão do cliente quanto à execução do serviço.", 10, linha); linha += 7;
+
+doc.setFont(undefined, 'bold');
+doc.text("Políticas de Garantia:", 10, linha); linha += 7;
+doc.setFont(undefined, 'normal');
+
+doc.text("* A assistência técnica não se responsabiliza por arquivos armazenados no dispositivo. O cliente ", 10, linha);linha += 5;
+doc.text("declara ter realizado o backup previamente e isenta expressamente a assistência de qualquer ", 10, linha); linha += 5;
+doc.text("responsabilidade por eventual perda de dados.", 10, linha); linha += 7;
+
+
+doc.text("* Também não nos responsabilizamos por perdas de dados decorrentes de fatores externos ou alheios", 10, linha); linha += 5;
+doc.text("ao nosso controle, tais como: falhas elétricas, defeitos preexistentes no equipamento, ações de terceiros, ", 10, linha); linha += 5;
+doc.text("falhas na unidade de armazenamento utilizada para backup ou qualquer outro evento imprevisível ", 10, linha); linha += 5;
+doc.text("ocorrido durante ou após a execução do serviço.", 10, linha); linha += 7;
+
+doc.text("* Peças substituídas, se houver, serão devolvidas mediante solicitação formal no ato da retirada do", 10, linha); linha += 5; 
+doc.text("equipamento. Na ausência de solicitação, as peças serão descartadas conforme nosso procedimento", 10, linha); linha += 5;  
+doc.text("interno.", 10, linha); linha += 7;
+
+doc.text("* Os serviços prestados possuem garantia de 90 (noventa) dias, conforme o artigo 26, inciso II, do ", 10, linha); linha += 5;
+doc.text("Código de Defesa do Consumidor.", 10, linha); linha += 7;
+
+doc.text("* A garantia cobre exclusivamente o serviço executado, não se estendendo a danos decorrentes de ", 10, linha); linha += 5;
+doc.text("mau uso, quedas, líquidos, surtos elétricos ou intervenção de terceiros.", 10, linha); linha += 7;
+
+doc.text("* Serviços de software não possuem garantia, uma vez que não é possível garantir que o usuário não ", 10, linha); linha += 5;
+doc.text("acesse sites ou arquivos potencialmente maliciosos, o que comprometeria o funcionamento do sistema.", 10, linha); linha += 7;
+
+doc.text("* Serviços de hardware seguem as condições de garantia estabelecidas pelo fabricante.", 10, linha); linha += 61; //VERIFICAR *****
+
+doc.text("www.rsctechnology.com.br", 75, linha);
+
+
+
+//Aqui entra a outra parte da correcao do envio do pdf por e-mail
+//************************************************************************
+
+        const pdfBlob = doc.output('blob');
+
+         try {
+        await enviarEmailComPDF(pdfBlob);
+        alert('PDF enviado com sucesso!');
+    } catch (error) {
+        alert('Erro ao enviar o PDF: ' + error.message);
+    }
+
+
+//************************************************************************
+	
+	async function enviarEmailComPDF(pdfBlob) {
+    const reader = new FileReader();
+    reader.onload = async function() {
+        const base64Data = reader.result.split(',')[1]; // Remove o prefixo "data:application/pdf;base64,"
+        
+        const formData = new FormData();
+        formData.append('file', base64Data);
+
+        await fetch('https://script.google.com/macros/s/AKfycbz0VZdQUzic-osu1pMVs-gDGn_gNyJNaGXBhvwsq-4WyH3pCfSFgRk5o-DF8SkoboZ8/exec', {
+            method: 'POST',
+            body: formData
+        });
+    };
+    reader.readAsDataURL(pdfBlob);
+}
+
+
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(pdfBlob);
+        link.download = 'orcamento.pdf';
+        link.click();
+    });
+
+    window.onload = preencherFormulario;
+</script>
+
+</body>
+</html>
