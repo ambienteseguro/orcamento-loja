@@ -84,6 +84,10 @@
 </form>
 
 <script>
+  //Funcao para atualizar a data
+  const hoje = new Date().toLocaleDateString();
+  document.getElementById('dataHoje').textContent = hoje;
+  
   // Formatação automática do campo VALOR como moeda BR
   const valorInput = document.getElementById("valor");
   valorInput.addEventListener("input", () => {
