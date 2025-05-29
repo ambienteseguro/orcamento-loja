@@ -1,2 +1,2 @@
-Orcamento.html: 
-Aceite.html: Formulário local para gerar PDF de Ordem de Serviço do Chip, assistente virtual.
+Orcamento.html: Formulário local para gerar PDF de Ordem de Serviço do Chip, assistente virtual.
+Aceite.html: 
