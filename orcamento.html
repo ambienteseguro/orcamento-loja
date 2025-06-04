@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>RSC TECHNOLOGY</title>
+  <link rel="icon" href="https://ambienteseguro.github.io/rsctechnology/CHIP.png">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      color: #222;
+    }
+    .form-container {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label, input, textarea {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    input[type="text"], textarea {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .button-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<h1>RSC TECHNOLOGY</h1>
+<p style="text-align:center; font-weight:bold;">ORÇAMENTO - <span id="dataHoje"></span></p>
+<div class="form-container">
+  <form id="form1">
+    <label for="nome">Nome do Cliente:</label>
+    <input type="text" id="nome" name="nome">
+
+    <label for="telefone">Whatsapp com DDD:</label>
+    <input type="text" id="telefone" name="telefone">
+
+    <label for="marca">Marca do Equipamento:</label>
+    <input type="text" id="marca" name="marca">
+
+    <label for="modelo">Modelo do Equipamento:</label>
+    <input type="text" id="modelo" name="modelo">
+
+    <label for="problema">Defeito Apresentado:</label>
+    <textarea id="problema" name="problema" rows="3"></textarea>
+
+    <label for="valor">Valor do Orçamento:</label>
+    <input type="text" id="valor" name="valor">
+
+    <div class="button-container">
+      <button type="button" id="gerarLink">Enviar Orçamento</button>
+    </div>
+  </form>
+</div>
+<script>
+  // Atualiza a data e insere no HTML
+  const hoje = new Date().toLocaleDateString();
+  document.getElementById('dataHoje').textContent = hoje;
+
+  // Formatação automática do campo VALOR como moeda BR
+  const valorInput = document.getElementById("valor");
+  valorInput.addEventListener("input", () => {
+    let value = valorInput.value.replace(/\D/g, "");
+    value = (parseInt(value || 0) / 100).toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    });
+    valorInput.value = value;
+  });
+
+  document.getElementById('gerarLink').addEventListener('click', async () => {
+    const nome = document.getElementById('nome').value.trim();
+    const telefone = document.getElementById('telefone').value.trim();
+    const marca = document.getElementById('marca').value.trim();
+    const modelo = document.getElementById('modelo').value.trim();
+    const problema = document.getElementById('problema').value.trim();
+    const valor = document.getElementById('valor').value.trim();
+    const data = hoje; // Data fixa capturada na criação do link
+
+    const params = new URLSearchParams({ nome, telefone, marca, modelo, problema, valor, data });
+    const secret = "@m0n3yM@gn3t&1504#";
+    const raw = `${nome}${telefone}${marca}${modelo}${problema}${valor}${data}${secret}`;
+    const encoder = new TextEncoder();
+    const dataEncoded = encoder.encode(raw);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', dataEncoded);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    const fullURL = `https://ambienteseguro.github.io/ordem-de-servico-cliente/2-aceite.html?${params.toString()}&hash=${hashHex}`;
+
+    const msg = encodeURIComponent(`Olá ${nome}, segue o link com seu orçamento:\n\n${fullURL}`);
+    const numero = '55'+telefone; // Telefone do cliente
+    window.open(`https://wa.me/${numero}?text=${msg}`, '_blank');
+  });
+</script>
+</body>
+</html>
